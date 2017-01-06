@@ -1,0 +1,23 @@
+clang -S -emit-llvm 1.c  -o 1.bc  			 to emit the binary code file
+clang -S -emit-llvm -o 1.S				 would give IR dumped file
+clang -unroll-allow-partial 1.c 			 would unroll the loops
+clang -mllvm -bb-vectorize-aligned-only	 1.c             would call vectorizes
+
+
+export PATH=/home/kashyap/llvm/install/bin:$PATH	
+export LLVM_LIB_SEARCH_PATH=/home/kashyap/llvm/install/lib
+
+
+which opt	this woud give the path from where the command is being taken (opt).
+
+
+
+
+opt < 1.bc > /dev/null -bb-vectorize -debug 		to dump the debug prints from the BBVectorize.cpp
+
+opt -O3 < 1.bc -bb-vectorize -debug-only=bb-vectorize
+
+opt -O3 < 1.bc -bb-vectorize-debug-candidate-selection -debug
+
+clang -O3 -S -emit-llvm -mllvm -vectorize S1115.c -o S1115.bc
+opt -O3 <S1115.bc -bb-vectorize -debug

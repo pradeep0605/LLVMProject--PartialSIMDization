@@ -1,0 +1,40 @@
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.event.*;
+import javax.imageio.*;
+import org.fife.ui.rtextarea.*;
+import org.fife.ui.rsyntaxtextarea.*;
+
+
+public class PartialSimdizerFileBrowser
+{
+	DefaultMutableTreeNode root;
+	JFrame Browser=new JFrame("Select a file");
+	JSplitPane DefaultPanel=new JSplitPane();
+	JScrollPane FileBrowserPane=new JScrollPane();
+	JPanel BottomControlPane=new JPanel();
+	JScrollPane
+	String FilePath=new String();
+	public PartialSimdizerFileBrowser(DefaultMutableTreeNode root){
+		try{
+			this.root=root;
+			Browser.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			Browser.setSize(new Dimension(700,400));
+			Browser.setContentPane(FileBrowserPane);
+			Browser.setResizable(false);			
+			
+		}catch(Exception e){} 
+	}
+	
+	public showDialog(){
+		Browser.setVisible(true);
+	}
+	
+}
+

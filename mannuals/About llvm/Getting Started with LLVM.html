@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0059)http://puttu.net/programming/guides/LLVMGettingStarted.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+p.margin {margin: 1cm 4cm 1cm 2cm}
+</style>
+<title>Getting Started with LLVM</title></head>
+<body>
+<h2>A quick guide to getting started with LLVM</h2>
+
+<p class="margin"><big>Required packages:</big><br>
+<br>
+I'm assuming a GNU/Linux system (preferably Ubuntu) throughout this guide.<br>
+1. <b>gcc/g++</b> - The gnu compiler collection. This is installed by default on
+every GNU/Linux system. You may need to install the libc header files,
+which some distributins skip by default. On Ubuntu: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>sudo apt-get install build-essentials</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>sudo apt-get install g++</i></font><br>
+2. <b>subversion</b> - Though subversion is not really required to work on LLVM, I would
+recommend using it. You will learn to use a new version control system, and it does
+make development a little easier.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>sudo apt-get install subversion</i></font><br>
+2. <b>cscope</b> A good source code browsing tool.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>sudo apt-get install cscope</i></font><br>
+
+</p>
+
+<p class="margin"><big>Pre-LLVM Setup:</big><br>
+<br>
+You will need a directory somewhere on your hdd where in all LLVM related work will be done. Lets call
+that directory $LLVM_HOME. I will use this variable henceforth. If you would like to copy paste the commands
+as it is from this guide, define this variable in your ~/.bashrc file. For example, add a line <b>similar</b> to below
+in your ~/.bashrc file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>export LLVM_HOME=/media/data/llvm</i></font><br>
+</p>
+
+<p class="margin"><big>Downloading LLVM:</big><br>
+<br>
+Run the following commands:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd $LLVM_HOME</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>svn co http://llvm.org/svn/llvm-project/llvm/tags/RELEASE_31/final llvm</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd ${LLVM_HOME}/llvm/tools</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>svn co http://llvm.org/svn/llvm-project/cfe/tags/RELEASE_31/final clang</i></font><br>
+"RELEASE_31" can be modified to match the latest release.
+</p>
+
+<p class="margin"><big>Building LLVM:</big><br>
+<br>
+Run the following commands:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd $LLVM_HOME</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>mkdir build</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>mkdir install</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>cd build</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>../llvm/configure --prefix=${LLVM_HOME}/install --disable-optimized --enable-shared=yes --enable-targets=host-only</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>make</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>make install</i></font><br>
+Notes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The "--enable-shared=yes" option builds libLLVM as a shared library (.so) instead of
+as an archive (.a). This will reduce the link time on incremental builds and will reduce the space consumption to
+some extent, at the cost of extra starting time. Skip this if archive (static library) works fast on your system.
+(On my 1GB RAM machine, the linking time for "clang executable" came down from 15-20 min to 6-7 min).<br>
+Make sure to add the install/bin path to your ~/.bashrc file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>export PATH=${LLVM_HOME}/install/bin:$PATH</i></font><br>
+</p>
+
+<p class="margin"><big>Source Browsing/Tips:</big><br>
+<br>
+Run the following commands to setup cscope and etags (ctags for VI is similar):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd ${LLVM_HOME}/llvm</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="gren"><i>rm tags.lst</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>find | grep "\.c$" &gt;&gt; tags.lst</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="gren"><i>find | grep "\.cpp$" &gt;&gt; tags.lst</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>find | grep "\.h$" &gt;&gt; tags.lst</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>etags `cat tags.lst`</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cscope -i tags.lst</i></font><br>
+It is advisable to put these commands in a script and just run the script (may need to do often).<br>
+Also, if you are an emacs user, you might want to put the following code in your ~/.emacs file. This
+will ensure that the TAGS file is picked up by default (without having to specify it everytime)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i> (setq tags-file-name</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>&nbsp;&nbsp;&nbsp;&nbsp; '"${LLVM_HOME}/llvm/TAGS")</i></font><br>
+IMPORTANT: Please replace ${LLVM_HOME} in the previous line by the actual path. 
+</p>
+
+<p class="margin"><big>Writing a Simple Pass:</big><br>
+<br>
+I will not explain the details of what will be in the pass here. That is already explained well in the
+"How to write an LLVM pass" section of the LLVM docs. What I try to show here is to write the pass as a 
+part of the main libLLVM library rather than as a separate shared object (as is shown in the official doc).
+The source file to be used for this pass is in ${LLVM_HOME}/llvm/lib/Transforms/Hello/Hello.cpp.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cp ${LLVM_HOME}/llvm/lib/Transforms/Hello/Hello.cpp ${LLVM_HOME}/llvm/lib/Transforms/Scalar/</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>cd ${LLVM_HOME}/build</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>make install</i></font><br>
+You can now see the new pass if you try<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>opt -help</i></font><br>
+Look at the LLVM guides on how to trigger this pass and how to make use of it.<br><br>
+If above step of "make install" takes too long for each change you make, then you may want to try the below.<br>
+The key is to avoid linking the clang executable (which is what takes a long time). You can just build the libLLVM
+library, opt and the llc tools. Only for doing a full exhaustive testing (not unit test / development) will you need
+to link clang.<br>
+After editing only files in ${LLVM_HOME}/llvm/lib/* (this is what is required for backend work), run the following
+commands instead of the "make install" step above.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd ${LLVM_HOME}/build</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>make libs-only</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cp Debug+Asserts/lib/libLLVM-3.1.so ../install/lib/</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>cd tools/opt/</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>make install</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>cd ../llc</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>make install</i></font><br>
+A good idea is to put all of these into a "domake.sh" in ${LLVM_HOME}/build and just run it.
+(Do note that the clang executable is not updated with your changes, just "opt" and "llc")<br>
+<font color="red">TIPS:</font> For non-trivial passes, you will need to initialize the pass and specify required analysis etc. Have a look
+at other similar passes on how they do this.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- You may need to add your pass in Passes.cpp for it to kick in at the right place. This is better
+than registering your pass as is in the official guide. You can turn on/off your pass via a hidden command line flag.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;- You need to add a declaration of "initialize<i>YourPassName</i>Pass" to InitializePasses.h/CodeGen.cpp.
+</p>
+
+<p class="margin"><big>Testing:</big><br>
+<br>
+Basic regression testing can be done as follows (these are compile only tests):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>cd ${LLVM_HOME}/build/test/</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>make</i></font><br>
+The full test suite, which includes executable and performance tests can be setup and run as follows:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>sudo apt-get install virtualenvwrapper</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>virtualenv ${LLVM_HOME}/sandbox</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>svn co http://llvm.org/svn/llvm-project/lnt/trunk ${LLVM_HOME}/lnt</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>${LLVM_HOME}/sandbox/bin/python ${LLVM_HOME}/lnt/setup.py develop</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>svn co http://llvm.org/svn/llvm-project/test-suite/tags/RELEASE_31/final ${LLVM_HOME}/test-suite</i></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>${LLVM_HOME}/sandbox/bin/lnt runtest nt --sandbox ${LLVM_HOME}/test-suite-build --cc ${LLVM_HOME}/install/bin/clang --test-suite ${LLVM_HOME}/test-suite
+</i></font><br>
+In case you need to pass a flag to llvm (for example to enable your pass), add this argument to the command above<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>--mllvm="-your-llc-passname"</i></font><br>
+If you want to run only a subset of the test-suite, add something like below (this will run only the tests is "SingleSource" directory).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="green"><i>--only-test SingleSource</i></font><br><br>
+<font color="red">Running SPEC benchmarks:</font><br>
+&nbsp;&nbsp;Extract and place the SPEC benchmark in ${LLVM_HOME}/spec. For example, if you're using speccpu2006, ${LLVM_HOME}/spec should contain a sub directory called "speccpu2006", which contains the root of the spec suite. Note that the directory name "specpu2006" is important as the script is programmed to automatically recognize known names (spec95, speccpu200, speccpu2006 etc).<br>
+Give the following argument to the lnt script above to run the spec benchmark suite.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="blue"><i>--test-externals=${LLVM_HOME}/spec</i></font><br>
+To run only the spec benchmark (and avoid running the LLVM test-suite), use "--only-test External".<br>
+<b>NOTE:</b> In order to run the fortran benchmarks, you will need to have f2c installed in your system. The configure
+script will automatically detect it if installed in a standard path. (Use "sudo apt-get install f2c" to install f2c).
+<br>
+</p>
+
+<p class="margin"><big>Usefule Links</big><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. <a href="http://llvm.org/docs/GettingStarted.html">Official LLVM Getting Started</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. <a href="http://llvm.org/docs/WritingAnLLVMPass.html">Official How to Write an LLVM Pass</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. <a href="http://llvm.org/docs/TestingGuide.html">LLVM Testing Guide</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. <a href="http://llvm.org/docs/lnt/quickstart.html">LNT Quick Start</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. <a href="http://puttu.net/programming/guides/Emacs_Reference.txt">Emacs reference</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6. <a href="http://puttu.net/programming/guides/gdbinit.txt">A sample gdbinit file</a><br>
+</p>
+
+<p class="margin">Any suggestions and feedbacks are appreciated.
+<br>Contact: vaivaswatha[at]yahoo[dot]co[dot]in<br>©Copyright &lt;2012&gt; &lt;Vaivaswatha N&gt;<br></p>
+
+
+</body></html>

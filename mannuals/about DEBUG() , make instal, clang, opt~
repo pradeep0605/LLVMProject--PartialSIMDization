@@ -1,0 +1,6 @@
+
+
+clang -S file.c -emit-llvm -o file.bc
+
+the above command would create bit code file (IR) 
+

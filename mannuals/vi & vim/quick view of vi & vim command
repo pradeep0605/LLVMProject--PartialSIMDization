@@ -1,0 +1,67 @@
+i	to insert at the cursor position.
+
+a	to append at the cursor position.
+
+I	seeks the cursor to the begginig of the line and then goes to insert mode.
+
+A 	seeks the cursor to the end of the line and then goes to insert mode.
+
+o	insert a new empty line below the current cursor line and goes to insert mode.
+
+O	insert a new empty line above the current cursor line and goes to insert mode.
+
+u / 	to undo the previously done operation.
+ctr r	
+
+r 	replace a single character at cursor position and goes back to command mode.
+
+R	Works like insert button... Starts replacing characters from the cursor postion.
+
+s	delete the char at the cursor position and start inserting text from the same position.
+
+S	delete entire line and start inserting from the beggining of the same line.
+
+q	quit.
+
+q!	quit override. ignores all the changes made.
+
+w	saves the file.
+
+wq	save and quit.
+
+/key	foreward search for 'key'.
+
+?key	backward search for 'key'.
+
+n	to search for next place where 'key' is matched in foreward direction.
+
+N	same as 'n' in backward direction.
+
+dd	cuts the current line.
+
+yy	copies the current line.
+
+V	selects the entire line for cut, then pressing 'd' would cut the line, and 'p' or 'P' can used to paste.
+
+v	starts selecting from the current cursor postion. selection can be extended using arrow keys, and the same applies as V.
+
+p	pastes after the cursor.
+
+P	pastes before the cursor.
+
+:set ai sw=4	  if you type this in the command mode, then automatic indentations will be enabled. Vi can be configured to do this, by editing the 
+		  .exrc  file in the home directory.. So do   $> cd ~  , this will take you to the home directory and edit the .exrc file and type the followig
+		  code     set ai sw=4 wm=5 sm . This will be always used by the vi when it is invoked, to configure itelf.    
+		    
+.	to repeat the previous command in the command mode.
+
+ctrl t 		would give the tab space to the line (works in INSERT mode).
+
+:s/key/replace	search 'key' and replace it with 'replace'
+
+:#,#s/key/replace	search 'key' and replace the first occurance of 'key' with 'replcae' between lines #,#
+
+:#,#s/key/replace/g	all the occurances
+
+:%s/key/replace/g	every occurance in the file
+

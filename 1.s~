@@ -1,0 +1,39 @@
+	.file	"1.c"
+	.text
+	.globl	main
+	.align	16, 0x90
+	.type	main,@function
+main:                                   # @main
+# BB#0:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$40, %esp
+	leal	.L.str, %eax
+	movl	$0, -4(%ebp)
+	movl	$10, -8(%ebp)
+	movl	$20, -12(%ebp)
+	movl	$0, -16(%ebp)
+	movl	-8(%ebp), %ecx
+	imull	-12(%ebp), %ecx
+	movl	%ecx, -16(%ebp)
+	movl	-16(%ebp), %ecx
+	movl	%eax, (%esp)
+	movl	%ecx, 4(%esp)
+	calll	printf
+	movl	$0, %ecx
+	movl	%eax, -20(%ebp)         # 4-byte Spill
+	movl	%ecx, %eax
+	addl	$40, %esp
+	popl	%ebp
+	ret
+.Ltmp0:
+	.size	main, .Ltmp0-main
+
+	.type	.L.str,@object          # @.str
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.L.str:
+	.asciz	 "%d\n"
+	.size	.L.str, 4
+
+
+	.section	".note.GNU-stack","",@progbits

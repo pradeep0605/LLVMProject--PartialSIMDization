@@ -1,0 +1,25 @@
+If you are c/c++ programmer and vim user, maybe know ctags. Most of the time, source code are distributed to many folders and each of them consist of numbers of .cc/.c and .h. Sometimes to search the definition of a function, class, enums etc by using “/” is inefficient. ctags allow fast jumping to function call even the function definition source code are from other directories.
+In order to use ctags, first run the command at destination directory where the source codes are located.
+
+
+ctags -R *
+
+
+-R is to recursively goes across all the directories, and a ‘tags’ file will be created. You may now jump from function call to function definition, by pressing ctrl ] on the keyword.
+
+
+Let say when you discover a function call which you wanna see the definition, simply point the cursor to that function and press 
+
+ctrl ]
+
+and it will brings you there. If you wants to go back to where you came from, simply press 
+
+ctrl t.
+
+Instead of ctrl t, I like to use ctrl i and ctrl o to travel to forward and backward of the check points.
+
+The case is sometimes, you want to jump to the function declaration which the header files is not under the same folder of your source code. You can’t because ctags won’t know where is the function call come from.
+
+With simple trick, you can make wonders. create a synlink under the folder of your source code to link to a specific directory or header files. Let say I wanna refers the curses.h which is located at /usr/include/, I can create a symlink in my source code folder.
+
+ln -s /usr/include/curses.h curses.h

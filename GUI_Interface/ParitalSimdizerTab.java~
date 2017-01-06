@@ -1,0 +1,35 @@
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.event.*;
+import javax.imageio.*;
+import org.fife.ui.rtextarea.*;
+import org.fife.ui.rsyntaxtextarea.*;
+
+
+public class ParitalSimdizerTab extends JPanel
+{
+	String filename;
+	JPanel Editor=new JPanel();
+	JPanel StatusBar=new JPanel();
+	RSyntaxTextArea TextArea;
+	RTextScrollPane SP;
+	int StatusBarHeight=20;	
+	
+	public ParitalSimdizerTab(String fname)
+	{	
+		filename=fname;
+		String FileContents=FileHandler.readFromFile(filename);
+		TextArea=new RSyntaxTextArea(fileContents);
+		SP = new RTextScrollPane(TextArea);
+		setLayout(new BorderLayout());
+		
+		
+	}
+	
+}

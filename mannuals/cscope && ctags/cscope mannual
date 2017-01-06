@@ -1,0 +1,49 @@
+CSCOPE:
+Cscope can be a particularly useful tool if you need to wade into a large code base. You can save yourself a lot of time by being able to do fast, targeted searches rather than randomly grepping through the source files by hand (especially since grep starts to take a while with a truly large code base). 
+
+
+so we build a database for cscope from the list of files to be searched for.
+To list the files.. we use the find command. This command finds the list of files with the given pattern
+ex..  if we want to find all the .h (header files) 
+
+
+find ./ -name '*.h' > cscope.files
+
+
+the above command lists the files recursively with ".h" pattern from the current directory ("./") and write the results to "cscope.files"  file.
+
+
+what if we want to add some more files to the cscope.files then we can search for those files and append them.
+
+
+find ./ -name '*.cpp' >> cscope.files
+
+
+now after listing the files we have to create the data base .. so we execute the following command.
+
+
+cscope -b -q
+
+
+The -b flag tells Cscope to just build the database, and not launch the Cscope GUI. without -b it builds the database and shows that with some GUI.
+The -q causes an additional, 'inverted index' file to be created, which makes searches run much faster for large databases. 
+
+after creating the data base we can start cscope command with -d option. which means that you have to use the already build database
+and not to build new.. If any changes in the files.. then have to build the data base againg using -b -q option. If any new files created, 
+then have to list them to the cscope.files file and then build the database again.
+
+cscope -d
+
+now we can find our things.. "?" will give the list of provided by the cscope command.
+
+
+
+after creating database, we need to create tags.. So using etags/ctags
+
+etags `cat cscope.files`
+
+the above command would create tags between multiple files
+
+
+
+

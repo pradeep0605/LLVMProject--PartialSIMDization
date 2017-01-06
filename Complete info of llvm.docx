@@ -1,0 +1,93 @@
+﻿Every thing about LLVM 3.1 
+
+
+INSTALLATION
+
+1.	Download the source file from the net. http://llvm.org/releases/ Download the latest one. In this document LLVM 3.1 is taken, which is the latest at the current date (19/7/2012).
+
+
+2. 	In you home directory create a folder (directory) named llvm and in that create 2 directories, one as build, one more as install. And now copy the source of llvm into the folder. Viz llvm-3.1. Now you have 3 directories in llvm directory (build, install and llvm-3.1). For that go to terminal, cd to your home directory and type.
+	
+		$> mkdir llvm
+		$> cd llvm
+		$> mkdir build install
+
+
+3. 	The source of the clang should be downloaded and installed. For that the source should be downloaded to llvm tool directory and while installing llvm, It will also be installed.
+	
+	 cd to your llvm-3.1/tool/      and type the following command.
+	$> svn co http://llvm.org/svn/llvm-project/cfe/tags/RELEASE_31/final clang
+ 	 
+  	 	The above downloads the clang inside llvm-3.1/tool/ directory
+
+
+
+4.	Now cd back to the llvm/build/ directory and type the following commands.
+
+		$> ../llvm3.1/configure --prefix=/home/username/llvm/install --enable-shared=yes --enable-targets=host-only
+	
+		$> make
+ 
+		$> make install
+
+	 now this would install llvm and clang. 
+
+
+5.	Export the paths
+	 $> export PATH=~/llvm/install/bin:$PATH
+	 $> export LLVM_LIB_SEARCH_PATH=~/llvm/install/lib
+
+Browsing source code using CSCOPE and CTAGS/ETAGS
+
+	cscope and ctags are used for browsing souce code within, across files and accross files in different directories. If we want to understand a large code such as a Compilers' then these tools come in handy. The function calls and definisions would be across files and the same applies of Variables, object also. We cannot manually search for them in such a huge source. So we use these tools to browse them. 
+
+1.  For installing CSCOPE and CTAGS do the following
+
+		$> sudo apt-get install cscope
+		$> sudo apt-get install ctags
+
+2.  Now for browsing; cscope create a data base out of list of files in a file named cscope.files in the currect directory. This file (cscope.files) should conatin the name of the files delimited by space or \n, on which the search database is created. For llvm we need to browse .cpp and .h files. To populate cscope.files, follow the commands given below.
+
+	$> find ./ -name “*.h” > cscope.files
+	$> find ./ -name “*.cpp” >> cscope.files
+
+	Note that the second find has double >> to append the c++ files' path to cscope.files
+	
+	$> cscope -b -q
+	
+	  the above would create the database.
+
+	$> etags `cat cscope.files`
+
+	This command would create tags for the fiels present in the cscope.files file. It will tag every function call to its definition, every use of variable (object) to its decleration and name of every class to its class Definition. 
+		
+	$>  cscope -d 
+		This would launch cscope. There will be list of options provided. For searching files, function from the entire source code of compiler. 
+
+	If you type a file name (even parial name of the file which is unique) and press enter.
+ It would take you to that file. Now place the cursor on any function call and press ctrl ]. This would take to the function definition. If you want to return back to the calling function press ctrl t. All the above command can be put in a single sell script.
+
+$> vi  tag.sh
+find ./ -name '*.h' > cscope.files
+find ./ -name "*.cpp" >> cscope.files
+cscope -b -q
+etags `cat cscope.files`
+cscope -d
+
+$> sh tag.sh
+DEBUG() macro  and make installs.
+
+	In llvm we might want to put some information on to the screen to debug the code. For example simple statements to check whether they are working or not (like “hellow world” etc). For that LLVM has a debugging system, which allows us to dump the debug info on to the screen (stderr). 
+
+	 DEBUG(dbgs() <<”Hellow world\n”);
+
+The below example is given 
+	 DEBUG(dbgs() << "BBV: found " << PairableInsts.size()
+            << " instructions with candidate pairs\n")
+
+After inserting the user code, We have to update(Compile) the llvm compiler to reflect the changes made.
+
+	 Just go to ~/llvm/build  and doing  $> make install  would suffice. But it takes around a minute to finsh. We can use -j option of parallel compilation. As we will be updating only libraries  make -j 8 install-libs would update only the library files and takes less than 15 seconds in i386.
+
+
+How to dump the DEBUGS()

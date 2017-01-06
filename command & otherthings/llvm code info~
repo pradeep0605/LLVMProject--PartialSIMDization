@@ -1,0 +1,18 @@
+
+
+Config.VectorBits:128 
+Config.MaxIter:0
+
+
+BasicBlock  BB;    BB.end()  does not give the address of the last instruction... it gives last instruction +1 th address...  so that we can use it in looping.
+				i.e  for(BasicBlock::iterator i=BB.begin() ; i!=BB.end();i++)
+				
+
+
+Config.FastDep:0
+
+
+
+
+DEBUG(if (DebugInstructionExamination) dbgs() << "BBV: looking at " << *I <<
+                     " <-> " << *J << "\n");                    Control never co
